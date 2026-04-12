@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" th:href="@{/}">📋 Task Manager</a>
+            <a th:href="@{/new}" class="btn btn-primary">+ New Task</a>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <div th:if="${flashMessage}" class="alert alert-dismissible fade show mt-3" 
+             th:classappend="${flashType == 'success' ? 'alert-success' : flashType == 'warning' ? 'alert-warning' : flashType == 'info' ? 'alert-info' : 'alert-danger'}" 
+             role="alert">
+            <span th:text="${flashMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="main-card">
+            <h4 class="mb-4">Your Tasks</h4>
+
+            <form th:action="@{/}" method="get" class="row g-3 mb-4">
+                <div class="col-md-5">
+                    <input type="text" name="title" class="form-control" placeholder="🔍 Search by title..." th:value="${currentTitle}">
+                </div>
+                <div class="col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="ALL" th:selected="${currentStatus == null || currentStatus == 'ALL'}">All Statuses</option>
+                        <option value="TODO" th:selected="${currentStatus == 'TODO'}">To Do</option>
+                        <option value="IN_PROGRESS" th:selected="${currentStatus == 'IN_PROGRESS'}">In Progress</option>
+                        <option value="DONE" th:selected="${currentStatus == 'DONE'}">Done</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">Search</button>
+                    <a th:href="@{/}" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </form>
+
+            <div th:if="${#lists.isEmpty(tasks)}" class="empty-state">
+                <h5 th:text="${currentTitle != null || currentStatus != 'ALL'} ? 'No matching tasks found' : 'No tasks yet'"></h5>
+                <p class="text-muted" th:unless="${currentTitle != null || currentStatus != 'ALL'}">Click "New Task" to get started.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(tasks)}" class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Due Date <span class="badge bg-light text-primary ms-1">↑ Sorted</span></th>
+                            <th>Created</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="task : ${tasks}">
+                            <td>
+                                <a th:href="@{/task/{id}(id=${task.id})}" class="fw-semibold text-decoration-none" th:text="${task.title}"></a>
+                                <div class="task-description" th:if="${task.description != null}" th:text="${task.description}"></div>
+                            </td>
+                            <td>
+                                <span class="status-badge" th:classappend="${' status-' + task.status}" th:text="${task.status}"></span>
+                            </td>
+                            <td th:text="${task.dueDate != null ? #temporals.format(task.dueDate, 'dd MMM yyyy') : 'No due date'}"></td>
+                            <td th:text="${task.createdAt != null ? #temporals.format(task.createdAt, 'dd MMM yyyy HH:mm') : '-'}"></td>
+                            <td class="text-end text-nowrap">
+                                <form th:action="@{/toggle-status/{id}(id=${task.id})}" method="post" class="d-inline-block m-0 align-middle">
+                                    <button type="submit" class="btn btn-sm btn-outline-success align-middle" th:text="${task.status == 'DONE' ? 'Undo' : 'Mark Done'}"></button>
+                                </form>
+                                <a th:href="@{/edit/{id}(id=${task.id})}" class="btn btn-sm btn-outline-primary align-middle">Edit</a>
+                                <form th:action="@{/delete/{id}(id=${task.id})}" method="post" class="d-inline-block m-0 align-middle" onsubmit="return confirm('Delete this task?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger align-middle">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav aria-label="Task pagination" th:if="${totalPages > 1}">
+                <ul class="pagination justify-content-center mt-4">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/(page=${currentPage - 1}, size=${pageSize}, title=${currentTitle}, status=${currentStatus})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/(page=${i}, size=${pageSize}, title=${currentTitle}, status=${currentStatus})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/(page=${currentPage + 1}, size=${pageSize}, title=${currentTitle}, status=${currentStatus})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            <div th:if="${totalPages > 1}" class="text-center text-muted mt-2">
+                Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

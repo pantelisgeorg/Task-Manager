@@ -1,0 +1,66 @@
+:root {
+  --primary: #4361ee;
+  --primary-hover: #3a56d4;
+  --success: #2ecc71;
+  --warning: #f1c40f;
+  --danger: #e74c3c;
+  --bg-light: #f8f9fa;
+  --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+body {
+  background-color: #f5f7fb;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #333;
+}
+
+.navbar {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.main-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.status-badge {
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 600;
+  border-radius: 20px;
+}
+
+.status-TODO { background: #ffeaa7; color: #856404; }
+.status-IN_PROGRESS { background: #a8e6cf; color: #155724; }
+.status-DONE { background: #d4edda; color: #0f5132; }
+
+.table th { font-weight: 600; color: #555; border-bottom: 2px solid #e9ecef; }
+.table td { vertical-align: middle; }
+
+.btn-primary { background: var(--primary); border: none; }
+.btn-primary:hover { background: var(--primary-hover); }
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+}
+
+.task-description {
+  margin-top: 0.4rem;
+  padding: 0.4rem 0.65rem;
+  background: var(--bg-light);
+  border-left: 3px solid var(--primary);
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #555;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}

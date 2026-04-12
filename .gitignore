@@ -1,0 +1,23 @@
+# Build output
+target/
+
+# H2 database files
+data/
+
+# IDE
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
